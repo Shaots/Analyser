@@ -13,6 +13,7 @@ execute_process(
 )
 
 find_package(GTest REQUIRED)
+find_package(range-v3 CONFIG REQUIRED)
 find_package(Boost REQUIRED COMPONENTS program_options)
 
 include_directories(
@@ -31,7 +32,7 @@ target_link_libraries(${target}
         metric_accumulator
         metric
         cmd_options
-        range-v3::range-v3
+        range-v3
 )
 
 include(CTest)
