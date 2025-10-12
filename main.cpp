@@ -28,7 +28,9 @@
 
 int main(int argc, char *argv[]) {
     analyser::cmd::ProgramOptions options;
-    // распарсите входные параметры
+    if (!options.Parse(argc, argv)) {
+        return 1;
+    }
 
     // analyser::metric::MetricExtractor metric_extractor;
     // зарегистрируйте метрики в metric_extractor
