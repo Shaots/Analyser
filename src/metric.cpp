@@ -23,7 +23,7 @@
 namespace analyser::metric {
 
 void MetricExtractor::RegisterMetric(std::unique_ptr<IMetric> metric) {
-    // здесь ваш код
+    metrics.emplace_back(std::move(metric));
 }
 
 MetricResults MetricExtractor::Get(const function::Function &func) const {
