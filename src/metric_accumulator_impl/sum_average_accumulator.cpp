@@ -26,12 +26,14 @@ void SumAverageAccumulator::Accumulate(const metric::MetricResult &metric_result
 
 void SumAverageAccumulator::Finalize() {
     average = (count != 0) ? ((double)sum / count) : 0.0;
+    is_finalized = true;
 }
 
 void SumAverageAccumulator::Reset() {
     sum = 0;
     count = 0;
     average = 0;
+    is_finalized = false;
 }
 
 SumAverageAccumulator::SumAverage SumAverageAccumulator::Get() const {

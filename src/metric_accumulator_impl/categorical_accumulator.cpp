@@ -30,9 +30,12 @@ void CategoricalAccumulator::Accumulate(const metric::MetricResult &metric_resul
         metric_result.value);
 }
 
-void CategoricalAccumulator::Finalize() {}
+void CategoricalAccumulator::Finalize() { is_finalized = true; }
 
-void CategoricalAccumulator::Reset() { categories_freq.clear(); }
+void CategoricalAccumulator::Reset() {
+    categories_freq.clear();
+    is_finalized = false;
+}
 
 const std::unordered_map<std::string, int> &CategoricalAccumulator::Get() const { return categories_freq; }
 
