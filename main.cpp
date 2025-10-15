@@ -107,7 +107,6 @@ int main(int argc, char *argv[]) {
         });
         std::cout << std::endl;
 
-        analyser::AccumulateFunctionAnalysis(analysis, accumulator);
         } catch (const std::exception &e) {
             std::cerr << "Exception: " << e.what() << std::endl;
             return 1;
