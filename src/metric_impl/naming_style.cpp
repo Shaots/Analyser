@@ -20,7 +20,6 @@
 namespace analyser::metric::metric_impl {
 
 MetricResult::ValueType NamingStyleMetric::CalculateImpl(const function::Function &f) const {
-    std::cout << f.name << std::endl;
     if (f.name.contains('_'))
         return std::string("snake case");
     if (std::ranges::all_of(f.name, [](unsigned char c) { return std::islower(c); }))
