@@ -10,7 +10,7 @@
 #include <functional>
 #include <iomanip>
 #include <iostream>
-// #include <print>
+#include <print>
 #include <ranges>
 #include <sstream>
 #include <string>
@@ -41,16 +41,16 @@ int main(int argc, char *argv[]) {
         metric_extractor.RegisterMetric(std::make_unique<CountParametersMetric>());
 
         auto analysis = analyser::AnalyseFunctions(options.GetFiles(), metric_extractor);
-        std::cout << "Analyse function" << std::endl;
+        std::println("Analyse function");
         std::ranges::for_each(analysis, [](const auto &p) {
                                   std::string cls_name = p.first.class_name.has_value() ? ("::" + p.first.class_name.value()) : "";
-                                  std::cout << p.first.filename << cls_name << "::" << p.first.name << ": " << std::endl;
+                                  std::println("{}{}::{}:", p.first.filename, cls_name, p.first.name);
 
                                   std::ranges::for_each(p.second, [](const auto &metricResult) {
-                                    std::cout << "\t" << metricResult.metric_name << ": ";
-                                    std::visit([&metricResult](const auto& val){std::cout << val << ", " << std::endl;}, metricResult.value); });
+                                    std::print("\t{}: ", metricResult.metric_name);
+                                    std::visit([&metricResult](const auto& val){ std::println("{}, ", val); }, metricResult.value); });
                                 });
-        std::cout << std::endl;
+        std::println("");
 
         analyser::metric_accumulator::MetricsAccumulator accumulator;
         using namespace analyser::metric_accumulator::metric_accumulator_impl;
@@ -60,52 +60,52 @@ int main(int argc, char *argv[]) {
         accumulator.RegisterAccumulator("Naming Style", std::make_unique<CategoricalAccumulator>());
 
         auto splitedByFiles = analyser::SplitByFiles(analysis);
-        std::cout << "Split by files:" << std::endl;
+        std::println("Split by files:");
         std::ranges::for_each(splitedByFiles, [&accumulator](const auto &vec) {
-            std::cout << vec.front().first.filename << std::endl;
+            std::println("{}", vec.front().first.filename);
             accumulator.ResetAccumulators();
             analyser::AccumulateFunctionAnalysis(vec, accumulator);
             auto res1 = accumulator.GetFinalizedAccumulator<AverageAccumulator>("Lines count").Get();
-            std::cout << "\tLines count: Average = " << res1 << std::endl;
+            std::println("\tLines count: Average = {}", res1);
         
             auto res2 = accumulator.GetFinalizedAccumulator<AverageAccumulator>("Cyclomatic_complexity").Get();
-            std::cout << "\tCyclomatic_complexity: Average = " << res2 << std::endl;
+            std::println("\tCyclomatic_complexity: Average = {}", res2);
 
             auto res3 = accumulator.GetFinalizedAccumulator<SumAverageAccumulator>("Parameters count").Get();
-            std::cout << "\tParameters count: Sum = " << res3.sum << "\tAverage = " << res3.average << std::endl;
+            std::println("\tParameters count: Sum = {}\tAverage = {}", res3.sum, res3.average);
 
             auto res4 = accumulator.GetFinalizedAccumulator<CategoricalAccumulator>("Naming Style").Get();
-            std::cout << "\tNaming Style:";
+            std::print("\tNaming Style:");
             std::ranges::for_each(res4, [](const auto& p) {
-                std::cout << "\t" << p.first << ":" << p.second << ", ";
+                std::print("\t{}:{}, ", p.first, p.second);
             });
-            std::cout << std::endl;
+            std::println("");
         });
-        std::cout << std::endl;
+        std::println("");
 
         auto splitedByClass = analyser::SplitByClasses(analysis);
         std::cout << "Split by class:" << std::endl;
         std::ranges::for_each(splitedByClass, [&accumulator](const auto &vec) {
-            std::cout << vec.front().first.filename << std::endl;
+            std::println("{}", vec.front().first.filename);
             accumulator.ResetAccumulators();
             analyser::AccumulateFunctionAnalysis(vec, accumulator);
             auto res1 = accumulator.GetFinalizedAccumulator<AverageAccumulator>("Lines count").Get();
-            std::cout << "\tLines count: Average = " << res1 << std::endl;
+            std::println("\tLines count: Average = {}", res1);
         
             auto res2 = accumulator.GetFinalizedAccumulator<AverageAccumulator>("Cyclomatic_complexity").Get();
-            std::cout << "\tCyclomatic_complexity: Average = " << res2 << std::endl;
+            std::println("\tCyclomatic_complexity: Average = {}", res2);
 
             auto res3 = accumulator.GetFinalizedAccumulator<SumAverageAccumulator>("Parameters count").Get();
-            std::cout << "\tParameters count: Sum = " << res3.sum << "\tAverage = " << res3.average << std::endl;
+            std::println("\tParameters count: Sum = {}\tAverage = {}", res3.sum, res3.average);
 
             auto res4 = accumulator.GetFinalizedAccumulator<CategoricalAccumulator>("Naming Style").Get();
-            std::cout << "\tNaming Style:";
+            std::print("\tNaming Style:");
             std::ranges::for_each(res4, [](const auto& p) {
-                std::cout << "\t" << p.first << ":" << p.second << ", ";
+                std::print("\t{}:{}, ", p.first, p.second);
             });
-            std::cout << std::endl;
+            std::println("");
         });
-        std::cout << std::endl;
+        std::println("");
 
         } catch (const std::exception &e) {
             std::cerr << "Exception: " << e.what() << std::endl;
