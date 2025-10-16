@@ -10,10 +10,9 @@
             "name": "Launch Analyser",
             "program": "${workspaceFolder}/build/Analyser",
             "args": [
-                "-i",
-                "input.txt",
-                "--command",
-                "checksum"
+                "-f",
+                "../fles/sample",
+                "../conanfile.py"
             ],
             "cwd": "${workspaceFolder}/build"
         }

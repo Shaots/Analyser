@@ -19,6 +19,16 @@
 
 namespace analyser::metric::metric_impl {
 
-// здесь ваш код
+MetricResult::ValueType NamingStyleMetric::CalculateImpl(const function::Function &f) const {
+    if (f.name.contains('_'))
+        return std::string("snake case");
+    if (std::ranges::all_of(f.name, [](unsigned char c) { return std::islower(c); }))
+        return std::string("lower case");
+    if (std::isupper(f.name[0]))
+        return std::string("pascal case");
+    return std::string("camel case");
+}
+
+std::string NamingStyleMetric::Name() const { return "Naming Style"; };
 
 }  // namespace analyser::metric::metric_impl

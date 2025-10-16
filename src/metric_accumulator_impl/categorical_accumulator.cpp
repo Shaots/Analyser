@@ -19,6 +19,24 @@
 
 namespace analyser::metric_accumulator::metric_accumulator_impl {
 
-// здесь ваш код
+void CategoricalAccumulator::Accumulate(const metric::MetricResult &metric_result) {
+    std::visit(
+        [this](const auto &val) {
+            using T = std::decay_t<decltype(val)>;
+            if constexpr (std::is_same<T, std::string>::value) {
+                ++categories_freq[val];
+            }
+        },
+        metric_result.value);
+}
+
+void CategoricalAccumulator::Finalize() { is_finalized = true; }
+
+void CategoricalAccumulator::Reset() {
+    categories_freq.clear();
+    is_finalized = false;
+}
+
+const std::unordered_map<std::string, int> &CategoricalAccumulator::Get() const { return categories_freq; }
 
 }  // namespace analyser::metric_accumulator::metric_accumulator_impl

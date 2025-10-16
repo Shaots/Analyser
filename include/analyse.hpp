@@ -10,7 +10,7 @@
 #include <functional>
 #include <iomanip>
 #include <iostream>
-// #include <print>
+#include <print>
 #include <ranges>
 #include <sstream>
 #include <string>
@@ -27,22 +27,37 @@ namespace analyser {
 namespace rv = std::ranges::views;
 namespace rs = std::ranges;
 
-auto AnalyseFunctions(const std::vector<std::string>& files,
-                      const analyser::metric::MetricExtractor& metric_extractor) {
-    // здесь ваш код
+auto AnalyseFunctions(const std::vector<std::string> &files,
+                      const analyser::metric::MetricExtractor &metric_extractor) {
+    return files | std::views::transform([](auto &&str) {
+                         file::File f(str);
+                         return function::FunctionExtractor{}.Get(f);
+                     }) |
+                     std::views::join | std::views::transform([&metric_extractor](auto &&func) {
+                         auto res = metric_extractor.Get(func);
+                         return std::make_pair(func, res);
+                     }) | rs::to<std::vector<std::pair<function::Function, metric::MetricResults>>>();
 }
 
-auto SplitByClasses(const auto& analysis) {
-    // здесь ваш код
+auto SplitByClasses(const auto &analysis) {
+    return analysis | std::views::filter([](const auto& p){
+        return p.first.class_name.has_value();
+    }) | std::views::chunk_by([](const auto& left, const auto& right){
+        return left.first.class_name.value() == right.first.class_name.value();
+    }) | rs::to<std::vector<std::vector<std::pair<function::Function, metric::MetricResults>>>>();
 }
 
-auto SplitByFiles(const auto& analysis) {
-    // здесь ваш код
+auto SplitByFiles(const auto &analysis) {
+    return analysis | std::views::chunk_by([](const auto& left, const auto& right){
+        return left.first.filename == right.first.filename;
+    }) | rs::to<std::vector<std::vector<std::pair<function::Function, metric::MetricResults>>>>();
 }
 
-void AccumulateFunctionAnalysis(
-    const auto& analysis, const analyser::metric_accumulator::MetricsAccumulator& accumulator) {
-    // здесь ваш код
+void AccumulateFunctionAnalysis(const auto &analysis,
+                                const analyser::metric_accumulator::MetricsAccumulator &accumulator) {
+    rs::for_each(analysis, [&accumulator](const auto &metric) {
+        accumulator.AccumulateNextFunctionResults(metric);
+    }, &std::pair<function::Function, metric::MetricResults>::second);
 }
 
-} // namespace analyser
+}  // namespace analyser
